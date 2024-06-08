@@ -3,7 +3,7 @@ import numpy as np
 plt.style.use("default")
 
 
-def nonogram_ga(nonogram, printing=True):
+def nonogram_ga(nonogram, image_name, printing=True):
     gene_space = [0,1]
     
     nonogram_size = len(nonogram[0]) 
@@ -28,6 +28,8 @@ def nonogram_ga(nonogram, printing=True):
         crossover_type = "two_points"
         mutation_type = "random"
         mutation_percent_genes = 1
+
+
     
     elif (nonogram_size == 15):
         sol_per_pop = 300
@@ -68,7 +70,7 @@ def nonogram_ga(nonogram, printing=True):
         
         if(seq_id < len(sequence)):
             # -1 point for each additional block
-            fitness -= np.sum(sequence[seq_id:])
+            fitness -= np.sum(sequence[seq_id:])*5
         
         return fitness
 
@@ -135,7 +137,7 @@ def nonogram_ga(nonogram, printing=True):
         print("Accuracy: ", accuracy_sol(nonogram, solution_fitness),"%")
         
         # Shows plot - best scores in generations
-        ga_instance.plot_fitness()
+        ga_instance.plot_fitness().savefig(f"images/{image_name}.png")
         
     return accuracy_sol(nonogram, solution_fitness)
 
@@ -155,4 +157,31 @@ nonogram_lvl1_3 = [
     [[1], [2, 1], [5], [2, 1], [1]],
     [[1], [3], [5], [3], [1]]
 ]
-nonogram_ga(nonogram_lvl1_3)
+
+nonogram_lvl2_1 = [
+    [[0], [2], [3], [1], [1, 2, 2], [1, 2, 2], [1, 2], [6], [4], [0]],
+    [[6], [2, 2], [2, 2], [2], [3], [4], [2], [0], [2], [2]]
+]
+
+nonogram_lvl2_2 = [
+    [[1], [4, 2], [1, 2], [6, 1], [1, 2, 1], [5, 1, 1], [1, 2, 1, 1], [3, 1, 2], [1, 5], [2]],
+    [[6], [1, 1, 1, 1], [2, 1, 2], [1, 1, 2, 1], [1, 1, 4], [1, 2, 1], [8], [1, 1], [1, 4], [2]]
+]
+
+nonogram_lvl2_3 = [
+    [[6], [7], [8], [9], [5, 3], [5, 3], [9], [8], [7], [6]],
+    [[2], [4], [6], [8], [10], [4, 4], [4, 4], [10], [10], [10]]
+]
+
+nonogram_ga(nonogram_lvl1_1, "lvl1_1")
+nonogram_ga(nonogram_lvl1_2, "lvl1_2")
+nonogram_ga(nonogram_lvl1_3, "lvl1_3")
+
+nonogram_ga(nonogram_lvl2_1, "lvl2_1")
+nonogram_ga(nonogram_lvl2_2, "lvl2_2")
+nonogram_ga(nonogram_lvl2_3, "lvl2_3")
+
+# nonogram_ga(nonogram_lvl1_1)
+# nonogram_ga(nonogram_lvl1_1)
+# nonogram_ga(nonogram_lvl1_1)
+
