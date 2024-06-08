@@ -3,7 +3,7 @@ import numpy as np
 plt.style.use("default")
 
 
-def nonogram_ga(nonogram, image_name, printing=True):
+def nonogram_ga(nonogram, printing=True):
     gene_space = [0,1]
     
     nonogram_size = len(nonogram[0]) 
@@ -122,64 +122,24 @@ def nonogram_ga(nonogram, image_name, printing=True):
         return round(((sol_fitness*100)/clue_length),2)
     
     if (printing):
-        # Nonogram
-        print("Nonogram: ", nonogram)
-        
-        # Best solution 
-        print("Best solution:")
+        res = []
         for i in range(0,len(nonogram[0])**2,len(nonogram[0])):
-            print(solution[i:i+len(nonogram[0])])
-            
-        # Fitness score
-        print("Solution score: ", solution_fitness)
-        
-        #  Accuracy 0-100%
-        print("Accuracy: ", accuracy_sol(nonogram, solution_fitness),"%")
-        
-        # Shows plot - best scores in generations
-        ga_instance.plot_fitness().savefig(f"images/{image_name}.png")
-        
-    return accuracy_sol(nonogram, solution_fitness)
+            # print(solution[i:i+len(nonogram[0])])
+            res.append(solution[i:i+len(nonogram[0])])
+    # return accuracy_sol(nonogram, solution_fitness)
+    return res
 
 
 
 
-nonogram_lvl1_1 = [
-    [[1,1,1], [3], [5], [3], [1,1,1]],
-    [[1,1,1], [3], [5], [3], [1,1,1]]
-    ]
-nonogram_lvl1_2 = [
-    [[2], [1, 1], [1, 1], [1, 1], [2]],
-    [[1,1], [1, 1,1], [1, 1], [1,1], [1]]
-]
 
-nonogram_lvl1_3 = [
-    [[1], [2, 1], [5], [2, 1], [1]],
-    [[1], [3], [5], [3], [1]]
-]
 
-nonogram_lvl2_1 = [
-    [[0], [2], [3], [1], [1, 2, 2], [1, 2, 2], [1, 2], [6], [4], [0]],
-    [[6], [2, 2], [2, 2], [2], [3], [4], [2], [0], [2], [2]]
-]
+# nonogram_lvl1_1 = [
+#     [[1,1,1], [3], [5], [3], [1,1,1]],
+#     [[1,1,1], [3], [5], [3], [1,1,1]]
+#     ]
 
-nonogram_lvl2_2 = [
-    [[1], [4, 2], [1, 2], [6, 1], [1, 2, 1], [5, 1, 1], [1, 2, 1, 1], [3, 1, 2], [1, 5], [2]],
-    [[6], [1, 1, 1, 1], [2, 1, 2], [1, 1, 2, 1], [1, 1, 4], [1, 2, 1], [8], [1, 1], [1, 4], [2]]
-]
 
-nonogram_lvl2_3 = [
-    [[6], [7], [8], [9], [5, 3], [5, 3], [9], [8], [7], [6]],
-    [[2], [4], [6], [8], [10], [4, 4], [4, 4], [10], [10], [10]]
-]
-
-# nonogram_ga(nonogram_lvl1_1, "lvl1_1", False)
-# nonogram_ga(nonogram_lvl1_1, "lvl1_1")
-# nonogram_ga(nonogram_lvl1_2, "lvl1_2")
-# nonogram_ga(nonogram_lvl1_3, "lvl1_3")
-
-# nonogram_ga(nonogram_lvl2_1, "lvl2_1")
-# nonogram_ga(nonogram_lvl2_2, "lvl2_2")
-# nonogram_ga(nonogram_lvl2_3, "lvl2_3")
-
+# r = nonogram_ga(nonogram_lvl1_1)
+# print(r)
 
