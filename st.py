@@ -1,6 +1,6 @@
 import time
 from main import nonogram_ga
-
+from main2 import nonogram_ga2
 # nonograms example
 
 nonogram_1_1 = [
@@ -44,7 +44,7 @@ nonogram_3_1 = [
 ]
 
 start_time1_1= time.time()
-res1_1 = nonogram_ga(nonogram_1_1, "1_1")
+res1_1 = nonogram_ga2(nonogram_1_1, "1_1")
 end_time1_1 = time.time()
 t1_1= end_time1_1- start_time1_1
 

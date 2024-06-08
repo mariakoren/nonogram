@@ -3,7 +3,7 @@ import numpy as np
 plt.style.use("default")
 
 
-def nonogram_ga(nonogram, image_name, printing=True):
+def nonogram_ga2(nonogram, image_name, printing=True):
     gene_space = [0,1]
     
     nonogram_size = len(nonogram[0]) 
@@ -69,8 +69,8 @@ def nonogram_ga(nonogram, image_name, printing=True):
                 fitness += 1
         
         if(seq_id < len(sequence)):
-            # -5 point for each additional block
-            fitness -= np.sum(sequence[seq_id:])*5
+            # -1 point for each additional block
+            fitness -= np.sum(sequence[seq_id:])
         
         return fitness
 
