@@ -49,8 +49,7 @@ def nonogram_ga(nonogram, image_name, printing=True):
         fitness = 0
         seq_id = 0
         
-        for clue in clues:
-            
+        for clue in clues:        
             #  Skip zeros in sequence
             while seq_id < len(sequence) and sequence[seq_id] == 0:
                 seq_id += 1
@@ -62,8 +61,7 @@ def nonogram_ga(nonogram, image_name, printing=True):
             block_len = 0
             while seq_id < len(sequence) and sequence[seq_id] == 1:
                 block_len += 1
-                seq_id += 1
-            
+                seq_id += 1   
             if block_len == clue:
                 # +1 point for each correct block
                 fitness += 1
@@ -93,7 +91,7 @@ def nonogram_ga(nonogram, image_name, printing=True):
         for j in range(len(row_clues)):
             row_score = fitness_sequence(grid[j, :], row_clues[j])
             score += row_score
-        return round(score,2)
+        return score
 
         
     ga_instance = pygad.GA(fitness_func=fitness_func,
