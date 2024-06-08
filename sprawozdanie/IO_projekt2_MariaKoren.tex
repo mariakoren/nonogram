@@ -1,0 +1,398 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{fontawesome5}
+\usepackage{xcolor}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{dsfont} 
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[top=1in, bottom=1.5in, left=1.25in, right=1.25in]{geometry}
+
+\usepackage{subfig}
+\usepackage{multirow}
+\usepackage{multicol}
+\graphicspath{{Images/}}
+\usepackage{xcolor,colortbl}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\newcommand \comment[1]{\textbf{\textcolor{red}{#1}}}
+
+%\usepackage{float}
+\usepackage{fancyhdr} % Required for custom headers
+\usepackage{lastpage} % Required to determine the last page for the footer
+\usepackage{extramarks} % Required for headers and footers
+\usepackage{indentfirst}
+\usepackage{placeins}
+\usepackage{scalefnt}
+\usepackage{xcolor,listings}
+\usepackage{textcomp}
+\usepackage{color}
+\usepackage{verbatim}
+\usepackage{framed}
+
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{HTML}{C42043}
+\definecolor{backcolour}{HTML}{F2F2F2}
+\definecolor{bookColor}{cmyk}{0,0,0,0.90}  
+\color{bookColor}
+
+\lstset{upquote=true}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{codepurple},
+	numberstyle=\numberstyle,
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize\ttfamily,
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=b,
+	keepspaces=true,
+	numbers=left,
+	numbersep=10pt,
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+}
+\lstset{style=mystyle}
+
+\newcommand\numberstyle[1]{%
+	\footnotesize
+	\color{codegray}%
+	\ttfamily
+	\ifnum#1<10 0\fi#1 |%
+}
+
+\definecolor{shadecolor}{HTML}{F2F2F2}
+
+\newenvironment{sqltable}%
+{\snugshade\verbatim}%
+{\endverbatim\endsnugshade}
+
+% Margins
+\addtolength{\footskip}{0cm}
+\addtolength{\textwidth}{1.4cm}
+\addtolength{\oddsidemargin}{-.7cm}
+
+\addtolength{\textheight}{1.6cm}
+%\addtolength{\topmargin}{-2cm}
+
+% paragrafo
+\addtolength{\parskip}{.2cm}
+
+% Set up the header and footer
+\pagestyle{fancy}
+\lhead{\hmwkClass: \hmwkTitle} % Top center header
+\rhead{\firstxmark} % Top right header
+\lfoot{Maria Koren} % Bottom left footer
+\cfoot{} % Bottom center footer
+\rfoot{} % Bottom right footer
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+
+    
+\newcommand{\hmwkTitle}{Nonogram za pomocą algorytmów genetycznych} 
+\newcommand{\hmwkDueDate}{\today} 
+\newcommand{\hmwkClass}{Inteligencja Obliczeniowa}
+\newcommand{\hmwkAuthorName}{Maria Koren}
+
+% trabalho 
+\begin{document}
+% capa
+\begin{titlepage}
+    \vfill
+	\begin{center}
+	\hspace*{-1cm}
+	\vspace*{0.5cm}
+    \includegraphics[scale=0.55]{images/loga.png}\\
+	\textbf{Uniwersytet Gdański \\ [0.05cm]Wydział Matematyki, Fizyki i Informatyki \\ [0.05cm] Instytut Informatyki}
+
+	\vspace{0.6cm}
+	\vspace{4cm}
+	{\huge \textbf{\hmwkTitle}}\vspace{8mm}
+	
+	{\large \textbf{\hmwkAuthorName}}\\[3cm]
+	
+		\hspace{.45\textwidth} %posiciona a minipage
+	   \begin{minipage}{.5\textwidth}
+
+	  \end{minipage}
+	  \vfill
+	%\vspace{2cm}
+	
+	\textbf{Gdańsk}
+	
+	\textbf{\hmwkDueDate}
+	\end{center}
+	
+\end{titlepage}
+
+\newpage
+\setcounter{secnumdepth}{5}
+\tableofcontents
+\newpage
+
+\section{Wstęp}
+
+W tym projekcie jest przedstawiony problem nonogram.
+
+Nonogram (malowanie liczbami) to łamigłówka polegająca na zaczernianiu pól diagramu. Zaczernione pola utworzą rysunek. To, które pola trzeba zaczernić, wskazują liczby obok diagramu. Liczby z lewej strony każdego wiersza określają, ile grup czarnych pól jest w danym rzędzie i ile czarnych pól jest w każdej grupie.Analogicznie jest z liczbami u góry diagramu. 
+
+Powyższy problem rozwiązano za pomocą algorytmu genetycznego (użyto 2 fukcje fitness) dla trzech rozmiarów: 5x5, 10x10, 15x15. 
+
+Dodatkowo napisana mała aplikacja dla nonogramu 5x5.
+
+\newpage
+\section{Algorytm}
+
+Dla powyższego problemu wybrano geny zero-jedynkowe, gdzie 1 oznacza zamalowaną klatkę, 0 pustą.
+
+Użyto funkcji pomocniczej dla funkcji fitness:
+
+\begin{lstlisting}[language=Python]
+def fitness_sequence(sequence, clues):
+        fitness = 0
+        seq_id = 0
+        
+        for clue in clues:        
+            #  Skip zeros in sequence
+            while seq_id < len(sequence) and sequence[seq_id] == 0:
+                seq_id += 1
+                
+            if seq_id == len(sequence):
+                break
+            
+            # Count ones and check it matches to clue
+            block_len = 0
+            while seq_id < len(sequence) and sequence[seq_id] == 1:
+                block_len += 1
+                seq_id += 1   
+            if block_len == clue:
+                # +1 point for each correct block
+                fitness += 1
+        
+        if(seq_id < len(sequence)):
+            # -5 point for each additional block
+            fitness -= np.sum(sequence[seq_id:])*5
+        
+        return fitness
+\end{lstlisting}
+
+Ta funkcja zlicza poprawne wartości i daje +1 punkt za każdą poprawną zgadniętą wartość i karę -5 za każdą niepoprawną.
+
+Główna funkcja \textit{fitness}:
+\begin{lstlisting}[language=Python]
+ def fitness_func(model, solution, solution_idx):
+        # Splits nonogram for columns and rows
+        col_clues = np.array(nonogram[0], dtype=object)
+        row_clues = np.array(nonogram[1], dtype=object)
+        
+        # Splits soluton to arrays of nonogram size
+        grid = solution.reshape((len(row_clues), len(col_clues)))
+        score = 0
+        
+        #  Checks each column solution
+        for i in range(len(col_clues)):
+            col_score = fitness_sequence(grid[:, i], col_clues[i])
+            score += col_score
+            
+        # Checks each row solution
+        for j in range(len(row_clues)):
+            row_score = fitness_sequence(grid[j, :], row_clues[j])
+            score += row_score
+        return score
+\end{lstlisting}
+
+Główna funkcja fitness wywołuje pomicniczą dla każdej kolumny i każdego wiersza i zlicza sumarną wartość fittness (score).
+
+Zrobiono również program z inną funkcją \textit{fitness}, która od poprzedniej różni się karą: tym razem za niepoprawne zgadywanie kara wynosi -1 pkt.
+
+\newpage
+\section{Porówanie}
+
+Żeby porównać wyniki funkcji, użyto po 3 przykłady na każdy rozmiar. Wyniki są reprezentowane w tabeli \ref{tab:nonogram_results}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        Rozmiar & Algorytm & Statystyka & Wartości & Średnia \\ \hline
+        \multirow{6}{*}{5x5} 
+        & \multirow{2}{*}{nonogram\_ga} & Accuracy & 100.0, 100.0, 83.33 & 94.44 \\ \cline{3-5}
+        & & Time & 1.91, 1.60, 3.47 & 2.33 \\ \cline{2-5}
+        & \multirow{2}{*}{nonogram\_ga2} & Accuracy & 100.0, 100.0, 83.33 & 94.44 \\ \cline{3-5}
+        & & Time & 10.33, 1.82, 3.18 & 5.11 \\ \hline
+        \multirow{6}{*}{10x10} 
+        & \multirow{2}{*}{nonogram\_ga} & Accuracy & 70.37, 82.98, 92.68 & 82.01 \\ \cline{3-5}
+        & & Time & 23.98, 24.58, 26.17 & 24.91 \\ \cline{2-5}
+        & \multirow{2}{*}{nonogram\_ga2} & Accuracy & 77.78, 87.23, 85.37 & 83.46 \\ \cline{3-5}
+        & & Time & 27.38, 32.27, 33.64 & 31.10 \\ \hline
+        \multirow{6}{*}{15x15} 
+        & \multirow{2}{*}{nonogram\_ga} & Accuracy & 55.84, 70.59, 43.1 & 56.51 \\ \cline{3-5}
+        & & Time & 49.84, 102.65, 50.30 & 67.60 \\ \cline{2-5}
+        & \multirow{2}{*}{nonogram\_ga2} & Accuracy & 66.23, 78.82, 50.0 & 65.02 \\ \cline{3-5}
+        & & Time & 55.45, 111.30, 52.62 & 73.12 \\ \hline
+    \end{tabular}
+    \caption{Wyniki dla różnych algorytmów i rozmiarów nonogramów}
+    \label{tab:nonogram_results}
+\end{table}
+
+Na podstawie przedstawionych wyników można stwierdzić, że algorytm 1 zawsze działa szybciej niż algorytm 2, i daje nie gorsze wyniki.
+
+\newpage
+\section{Krzywy uczenia się}
+
+Dla fittnes 1:
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_1_1.png}
+        \caption{5x5, przykład 1}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_1_2.png}
+        \caption{5x5, przykład 2}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_1_3.png}
+        \caption{5x5, przykład 3}
+    \end{minipage}
+
+    \vspace{0.5cm} % odstęp między wierszami
+
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_2_1.png}
+        \caption{10x10, przykład 1}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_2_2.png}
+        \caption{10x10, przykład 2}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_2_3.png}
+        \caption{10x10, przykład 3}
+    \end{minipage}
+
+    \vspace{0.5cm} % odstęp między wierszami
+
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_3_1.png}
+        \caption{15x15, przykład 1}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_3_2.png}
+        \caption{15x15, przykład 2}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga_3_3.png}
+        \caption{15x15, przykład 3}
+    \end{minipage}
+\end{figure}
+
+\newpage
+
+Dla fitness 2:
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_1_1.png}
+        \caption{5x5, przykład 1}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_1_2.png}
+        \caption{5x5, przykład 2}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_1_3.png}
+        \caption{5x5, przykład 3}
+    \end{minipage}
+
+    \vspace{0.5cm} % odstęp między wierszami
+
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_1_2.png}
+        \caption{10x10, przykład 1}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_2_2.png}
+        \caption{10x10, przykład 2}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_2_3.png}
+        \caption{10x10, przykład 3}
+    \end{minipage}
+
+    \vspace{0.5cm} % odstęp między wierszami
+
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_3_1.png}
+        \caption{15x15, przykład 1}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_3_2.png}
+        \caption{15x15, przykład 2}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/nonogram_ga2_3_3.png}
+        \caption{15x15, przykład 3}
+    \end{minipage}
+\end{figure}
+
+\newpage
+\section{Aplikacja}
+
+Przedstawione zostały wyniki dla 3 nonogramów każdego rozmiaru, a przetestowano było więcej. Zauważono, że dla nonogramu 5x5 wyniki często wychodzą 100\%. Oraz wyniki są otrzymywane dość szybko. Dlatego postanowiono napisać aplikacje właśnie dla tego rozmiaru.
+
+Dla aplikcji wzięto algorytm z pierwszą funkcją fitness, ponieważ dokładność jest ta sama, natomiast jest szybsza, co w sytuacji aplikacji ma znaczenie.
+
+W celu uruchamienia aplikcji trzeba wejść do folderu server i użyć polecenia:
+\begin{lstlisting}[language=Bash]
+    python main.py
+\end{lstlisting}
+
+Zatem wejśc w przeglądarkę pod strone \textit{localhost:5000} i będzie widoczna strona:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/initsite.png}
+\end{figure}
+
+Podając liczby, opisujący chcące zamalowanie i naciskając przycisk \textbf{submit} otrzymujemy niżej wyniki. Przykład poniżej:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/resultsite.png}
+\end{figure}
+
+\newpage
+\section{Podsumowanie}
+Zostały napisane 2 programy używające algorytmy genetyczne dla rozwiązania problemu nonogram. Porównując algorytmy, wyszło, że jeden algorytm działa szybciej, ale daje gorsze wyniki. Drugi na odwrót działa wolniej, ale daje lepsze wyniki.
+
+Ponadto dla problemu w rozmiarze 5x5 napisano aplikacje, która używa ten algorytm rozwiązywania nonogramu.
+\end{document}
